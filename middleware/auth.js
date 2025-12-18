@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const JWT_SECRET = "your_super_secret_key_123";
+const { JWT_SECRET } = require("../.env");
 
 const verifyToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
@@ -18,8 +18,6 @@ const verifyToken = (req, res, next) => {
   } catch (err) {
     return res.status(401).json({ message: "Invalid token." });
   }
-
-  next();
 };
 
 module.exports = verifyToken;

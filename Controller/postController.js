@@ -9,6 +9,7 @@ exports.getAllPosts = (req, res) => {
 
 exports.getPostById = (req, res) => {
   const id = paramsSchema.safeParse(req.params);
+  console.log(id);
   if (!id.success) {
     return res.status(400).json({
       message: "Invalid ID parameter",
@@ -20,7 +21,7 @@ exports.getPostById = (req, res) => {
   if (!post) {
     return res
       .status(404)
-      .json({ message: `Post with ID '${postId}' not found.` });
+      .json({ message: `Post with ID '${id.data.id}' not found.` });
   }
   res.json({ post: post });
 };
@@ -100,14 +101,27 @@ exports.deletePost = async (req, res) => {
   if (!paramValidation.success) {
     return res.status(400).json({ errors: paramValidation.error.format() });
   }
+
   const id = paramValidation.data.id;
 
   try {
     const deletedPost = await Post.delete(id);
-    res
-      .status(200)
-      .json({ status: "Post Deleted Successfully", post: deletedPost });
+
+    // CRITICAL FIX: Check if the post actually existed
+    if (!deletedPost) {
+      return res.status(404).json({ message: `Post with ID ${id} not found.` });
+    }
+
+    // This will only run if the return above didn't trigger
+    return res.status(200).json({
+      status: "Post Deleted Successfully",
+      post: deletedPost,
+    });
   } catch (err) {
-    res.status(500).json({ message: "Error deleting the post" });
+    // If headers were already sent in the 'try' block,
+    // check before sending a 500
+    if (!res.headersSent) {
+      return res.status(500).json({ message: "Error deleting the post" });
+    }
   }
 };
