@@ -104,7 +104,9 @@ exports.deletePost = async (req, res) => {
 
   try {
     const deletedPost = await Post.delete(id);
-    res.status(200).json({ post: deletedPost });
+    res
+      .status(200)
+      .json({ status: "Post Deleted Successfully", post: deletedPost });
   } catch (err) {
     res.status(500).json({ message: "Error deleting the post" });
   }
