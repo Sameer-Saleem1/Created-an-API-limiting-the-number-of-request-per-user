@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { JWT_SECRET } = require("../.env");
+const JWT_SECRET = "your_super_secret_key_123";
 
 const verifyToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];

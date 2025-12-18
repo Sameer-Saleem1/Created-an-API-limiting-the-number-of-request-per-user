@@ -1,7 +1,7 @@
 const User = require("../models/userModels");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const { JWT_SECRET } = require("../.env");
+const JWT_SECRET = "your_super_secret_key_123";
 
 exports.register = async (req, res) => {
   const { username, password } = req.body;
