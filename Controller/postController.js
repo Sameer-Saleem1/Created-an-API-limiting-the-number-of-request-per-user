@@ -26,9 +26,9 @@ exports.getAllPosts = async (req, res) => {
     }
 
     const posts = await query;
-    res.json({ count: posts.length, posts });
+    return res.json({ count: posts.length, posts });
   } catch (error) {
-    res.status(500).json({ message: "Error fetching posts" });
+    return res.status(500).json({ message: "Error fetching posts" });
   }
 };
 
@@ -41,9 +41,9 @@ exports.getPostById = async (req, res) => {
   try {
     const post = await Post.find({ id: validation.data.id });
     if (!post) return res.status(404).json({ message: "Post not found" });
-    res.json({ post });
+    return res.json({ post });
   } catch (err) {
-    res.status(500).json({ message: "Error retrieving post" });
+    return res.status(500).json({ message: "Error retrieving post" });
   }
 };
 
@@ -69,7 +69,7 @@ exports.createPost = async (req, res) => {
       id: nextId,
     });
 
-    res.status(201).json({ status: "Success", post: newPost });
+    return res.status(201).json({ status: "Success", post: newPost });
   } catch (error) {
     console.error("Database Error: ", error);
     // Handle potential duplicate key error if two users post at the exact same millisecond
@@ -78,7 +78,7 @@ exports.createPost = async (req, res) => {
         .status(409)
         .json({ message: "Conflict: ID generation failed, please try again." });
     }
-    res.status(500).json({ message: "Error saving to database" });
+    return res.status(500).json({ message: "Error saving to database" });
   }
 };
 
@@ -106,9 +106,9 @@ exports.putPost = async (req, res) => {
       return res.status(404).json({ message: "Post not found" });
     }
 
-    res.status(200).json({ post: updatedPost });
+    return res.status(200).json({ post: updatedPost });
   } catch (err) {
-    res.status(500).json({ message: "Error updating the post" });
+    return res.status(500).json({ message: "Error updating the post" });
   }
 };
 
@@ -135,9 +135,9 @@ exports.patchPost = async (req, res) => {
       return res.status(404).json({ message: "Post not found" });
     }
 
-    res.status(200).json({ post: updatedPost });
+    return res.status(200).json({ post: updatedPost });
   } catch (err) {
-    res.status(500).json({ message: "Error updating the post" });
+    return res.status(500).json({ message: "Error updating the post" });
   }
 };
 
@@ -154,8 +154,10 @@ exports.deletePost = async (req, res) => {
     if (!deletedPost)
       return res.status(404).json({ message: "Post not found" });
 
-    res.status(200).json({ status: "Deleted successfully", post: deletedPost });
+    return res
+      .status(200)
+      .json({ status: "Deleted successfully", post: deletedPost });
   } catch (err) {
-    res.status(500).json({ message: "Error deleting the post" });
+    return res.status(500).json({ message: "Error deleting the post" });
   }
 };
