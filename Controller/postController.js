@@ -2,7 +2,6 @@ const Post = require("../models/modelPosts");
 const { postSchema, paramsSchema, querySchema } = require("../zod/zodSchema");
 
 exports.getAllPosts = async (req, res) => {
-  // Added async
   const queryValidation = querySchema.safeParse(req.query);
   if (!queryValidation.success) {
     return res.status(400).json({
@@ -13,22 +12,14 @@ exports.getAllPosts = async (req, res) => {
 
   try {
     const { sort, limit } = queryValidation.data;
-    let query = Post.find(); // Mongoose find()
-
-    // Applying Mongoose Sorting
-    if (sort) {
-      // Sort descending (-1) for highest views or newest date
-      query = query.sort({ [sort]: -1 });
-    }
-
-    if (limit) {
-      query = query.limit(limit);
-    }
+    let query = Post.find();
+    if (sort) query = query.sort({ [sort]: -1 });
+    if (limit) query = query.limit(limit);
 
     const posts = await query;
-    return res.json({ count: posts.length, posts });
+    return res.json({ count: posts.length, posts }); // Added return
   } catch (error) {
-    return res.status(500).json({ message: "Error fetching posts" });
+    return res.status(500).json({ message: "Error fetching posts" }); // Added return
   }
 };
 
@@ -85,59 +76,47 @@ exports.createPost = async (req, res) => {
 // Add this to your postController.js
 exports.putPost = async (req, res) => {
   const paramValidation = paramsSchema.safeParse(req.params);
-  if (!paramValidation.success) {
-    return res.status(400).json({ errors: paramValidation.error.format() });
-  }
-
-  // For PUT, we use the full postSchema (not partial)
   const bodyValidation = postSchema.safeParse(req.body);
-  if (!bodyValidation.success) {
-    return res.status(400).json({ errors: bodyValidation.error.format() });
+
+  if (!paramValidation.success || !bodyValidation.success) {
+    return res.status(400).json({ message: "Validation failed" });
   }
 
   try {
     const updatedPost = await Post.findOneAndUpdate(
       { id: paramValidation.data.id },
-      ...bodyValidation.data,
-      { new: true, overwrite: true } // overwrite: true simulates PUT behavior
+      bodyValidation.data, // FIXED: Removed the ... spread operator
+      { new: true, overwrite: true }
     );
 
-    if (!updatedPost) {
+    if (!updatedPost)
       return res.status(404).json({ message: "Post not found" });
-    }
-
-    return res.status(200).json({ post: updatedPost });
+    return res.status(200).json({ post: updatedPost }); // Added return
   } catch (err) {
-    return res.status(500).json({ message: "Error updating the post" });
+    return res.status(500).json({ message: "Error updating the post" }); // Added return
   }
 };
 
 exports.patchPost = async (req, res) => {
   const paramValidation = paramsSchema.safeParse(req.params);
-  if (!paramValidation.success) {
-    return res.status(400).json({ errors: paramValidation.error.format() });
-  }
-
   const bodyValidation = postSchema.partial().safeParse(req.body);
-  if (!bodyValidation.success) {
-    return res.status(400).json({ errors: bodyValidation.error.format() });
+
+  if (!paramValidation.success || !bodyValidation.success) {
+    return res.status(400).json({ message: "Validation failed" });
   }
 
   try {
-    // findByIdAndUpdate is the Mongoose way to update
     const updatedPost = await Post.findOneAndUpdate(
       { id: paramValidation.data.id },
-      ...bodyValidation.data,
-      { new: true } // Returns the updated document instead of the old one
+      bodyValidation.data, // FIXED: Removed the ... spread operator
+      { new: true }
     );
 
-    if (!updatedPost) {
+    if (!updatedPost)
       return res.status(404).json({ message: "Post not found" });
-    }
-
-    return res.status(200).json({ post: updatedPost });
+    return res.status(200).json({ post: updatedPost }); // Added return
   } catch (err) {
-    return res.status(500).json({ message: "Error updating the post" });
+    return res.status(500).json({ message: "Error updating the post" }); // Added return
   }
 };
 
