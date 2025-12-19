@@ -96,9 +96,9 @@ exports.putPost = async (req, res) => {
   }
 
   try {
-    const updatedPost = await Post.findByIdAndUpdate(
-      paramValidation.data.id,
-      bodyValidation.data,
+    const updatedPost = await Post.findOneAndUpdate(
+      { id: paramValidation.data.id },
+      ...bodyValidation.data,
       { new: true, overwrite: true } // overwrite: true simulates PUT behavior
     );
 
@@ -125,9 +125,9 @@ exports.patchPost = async (req, res) => {
 
   try {
     // findByIdAndUpdate is the Mongoose way to update
-    const updatedPost = await Post.findByIdAndUpdate(
-      paramValidation.data.id,
-      bodyValidation.data,
+    const updatedPost = await Post.findOneAndUpdate(
+      { id: paramValidation.data.id },
+      ...bodyValidation.data,
       { new: true } // Returns the updated document instead of the old one
     );
 
