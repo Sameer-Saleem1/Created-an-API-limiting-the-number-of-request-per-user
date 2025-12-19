@@ -1,17 +1,10 @@
-const fs = require("fs").promises;
-const path = require("path");
-const usersPath = path.join(__dirname, "../users.json");
-let users = require("../users.json");
+const mongoose = require("mongoose");
 
-const User = {
-  findByUsername: (username) => users.find((u) => u.username === username),
+const userSchema = new mongoose.Schema({
+  username: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+});
 
-  create: async (userData) => {
-    const newUser = { id: Date.now(), ...userData };
-    users.push(newUser);
-    await fs.writeFile(usersPath, JSON.stringify(users, null, 2));
-    return newUser;
-  },
-};
+const User = mongoose.model("User", userSchema, "Users");
 
 module.exports = User;
